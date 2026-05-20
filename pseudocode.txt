@@ -1,0 +1,55 @@
+Core Encryption Logic:
+
+    FUNCTION EncryptFile(filePath):
+    CHECK if file exists and is not a system file (like .exe or .dll)
+    CHECK if file already starts with "ENCRYPTD" header
+    
+    READ all original data from the file
+    
+    GENERATE a random 256-bit Key
+    GENERATE a random 12-byte Nonce (a one-time-use number)
+    
+    ENCRYPT the data using AES-GCM algorithm with the Key and Nonce
+    
+    TRY to overwrite the original file with:
+        "ENCRYPTD" (Header) + Nonce + Encrypted Data
+    IF writing fails:
+        RESTORE the original data so the file isn't lost
+        
+    LOG the action to "encryption_log.txt"
+    RETURN the Key (encoded as text) to show the user
+
+Core Decryption Logic
+    FUNCTION DecryptFile(filePath, userKey):
+    CHECK if the file starts with the "ENCRYPTD" header
+    CONVERT the user's text key back into raw bytes
+    
+    READ the file data:
+        EXTRACT bytes 8 to 20 as the Nonce
+        EXTRACT everything after byte 20 as the Ciphertext (encrypted data)
+        
+    TRY to decrypt the Ciphertext using the Key and Nonce
+    IF decryption fails (wrong key or data was tampered with):
+        REPORT an error to the user
+        
+    OVERWRITE the file with the recovered original data
+    LOG the action to "encryption_log.txt"
+
+GUI Flow
+    ON BUTTON "Browse":
+    Open a system file picker
+    Store the selected path and show it in the entry box
+
+ON BUTTON "Encrypt File":
+    IF no file is selected, show a warning
+    RUN EncryptFile(path)
+    IF successful, show the secret key and refresh the log box
+
+ON BUTTON "Decrypt File":
+    IF no file is selected or key box is empty, show a warning
+    RUN DecryptFile(path, enteredKey)
+    IF successful, notify the user and refresh the log box
+
+ON BUTTON "Refresh Log":
+    READ the last 50 lines of "encryption_log.txt"
+    UPDATE the text area at the bottom of the window
