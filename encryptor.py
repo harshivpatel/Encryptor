@@ -1,5 +1,5 @@
 """
-encryptor_gui.py: A tool to keep files private using AES-256-GCM encryption.
+encryptor.py: A tool to keep files private using AES-256-GCM encryption.
 """
 
 import os
